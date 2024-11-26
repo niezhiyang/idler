@@ -453,7 +453,7 @@ public class LeetCodeNote {
         if (head == null) {
             return null;
         }
-        //根据k寻找待翻转链表的尾
+        //根据k寻找待翻转链表的尾,注意这里是k-1
         ListNode end = head;
         for (int i = 0; i < k - 1; i++) {
             end = end.next;
