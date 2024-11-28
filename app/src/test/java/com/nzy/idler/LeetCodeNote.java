@@ -3051,10 +3051,17 @@ public class LeetCodeNote {
             result.add(path);
         } else {
             for (int i = 0; i < nums.length; i++) {
+                // 还需要回溯
+//                if (!path.contains(nums[i])) {
+//                    ArrayList<Integer> temp = new ArrayList<>(path);
+//                    temp.add(nums[i]);
+//                    dps(temp, result, nums);
+//                }
+                // 下面直接不用回溯了
                 if (!path.contains(nums[i])) {
-                    ArrayList<Integer> temp = new ArrayList<>(path);
-                    temp.add(nums[i]);
-                    dps(temp, result, nums);
+                    ArrayList<Integer> newTemp = new ArrayList<>(path);
+                    newTemp.add(nums[i]);
+                    dps(path,result,nums);
                 }
 
             }
@@ -3111,31 +3118,30 @@ public class LeetCodeNote {
 
             if (i > 0 && nums[i] == nums[i - 1]) continue;
 
-            int curr = nums[i];
-            int L = i + 1, R = len - 1;
-            while (L < R) {
-                int tmp = curr + nums[L] + nums[R];
+            int left = i + 1, right = len - 1;
+            while (left < right) {
+                int tmp = nums[i] + nums[left] + nums[right];
                 if (tmp == 0) {
                     List<Integer> list = new ArrayList<>();
-                    list.add(curr);
-                    list.add(nums[L]);
-                    list.add(nums[R]);
+                    list.add(nums[i]);
+                    list.add(nums[left]);
+                    list.add(nums[right]);
                     lists.add(list);
                     // 去重
-                    while (L < R && nums[L + 1] == nums[L]) {
-                        ++L;
+                    while (left < right && nums[left + 1] == nums[left]) {
+                        left++;
                     }
                     // 去重
-                    while (L < R && nums[R - 1] == nums[R]) {
-                        --R;
+                    while (left < right && nums[right - 1] == nums[right]) {
+                        right--;
                     }
-                    ++L;
-                    --R;
+                    left++;
+                    right--;
                 } else if (tmp < 0) {
                     // 因为是递增的,所以这里
-                    ++L;
+                    left++;
                 } else {
-                    --R;
+                    right--;
                 }
             }
         }
@@ -3417,7 +3423,6 @@ public class LeetCodeNote {
 
     /**
      * https://leetcode.cn/problems/er-cha-shu-de-zui-jin-gong-gong-zu-xian-lcof/
-     *
      * @param root
      * @param p
      * @param q

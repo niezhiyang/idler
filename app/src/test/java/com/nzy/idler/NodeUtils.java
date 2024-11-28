@@ -17,4 +17,13 @@ public class NodeUtils {
         }
         return sb.toString();
     }
+
+    public static void printTwoArray(char[][] array) {
+        for (int i = 0; i < array.length; i++) {
+            for (int j = 0; j < array[0].length; j++) {
+                System.out.print(array[i][j]);
+            }
+            System.out.println("");
+        }
+    }
 }
