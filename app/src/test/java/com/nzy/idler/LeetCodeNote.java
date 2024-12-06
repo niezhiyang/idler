@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
-import java.util.Set;
 import java.util.Stack;
 
 /**
@@ -253,7 +252,7 @@ public class LeetCodeNote {
         ListNode node4 = new ListNode(4);
         node3.next = node4;
         node4.next = node2;
-        detectCycle1(node1);
+        detectCycle(node1);
 
 
     }
@@ -266,7 +265,7 @@ public class LeetCodeNote {
      * @param head
      * @return
      */
-    public ListNode detectCycle1(ListNode head) {
+    public ListNode detectCycle(ListNode head) {
         ListNode fast = head;
         ListNode slow = head;
         boolean hasCycle = false;
@@ -555,8 +554,11 @@ public class LeetCodeNote {
      */
 
     public ListNode removeNthFromEnd(ListNode head, int n) {
+        if (head == null) {
+            return null;
+        }
         ListNode fast = head;
-        ListNode curr = head;
+        ListNode cur = head;
         ListNode pre = null;
         for (int i = 0; i < n; i++) {
             fast = fast.next;
@@ -566,15 +568,13 @@ public class LeetCodeNote {
             return head.next;
         }
         while (fast != null) {
-            // 记录倒数第n个的前一个节点
-            if (fast.next == null) {
-                pre = curr;
-            }
-            curr = curr.next;
+            // 记录倒数第n个的前一个节点,一直记录到头也没问题
+            pre = cur;
+            cur = cur.next;
             fast = fast.next;
         }
-
-        pre.next = curr.next;
+        // pre节点 指向 cur的下一个
+        pre.next = cur.next;
 
         return head;
 
@@ -1008,12 +1008,31 @@ public class LeetCodeNote {
     }
     ///------------------------ 17 ---------------------
 
+
     /**
      * 树的深度
      *
      * @param root
      * @return
      */
+    int maxDepthResult = 0;
+
+    public int maxDepth(TreeNode root) {
+        // 第一个节点就是1
+        maxDepthDfs(root, 1);
+        return maxDepthResult;
+    }
+
+    private void maxDepthDfs(TreeNode root, int sum) {
+        if (root != null) {
+            if (root.left == null && root.right == null) {
+                maxDepthResult = Math.max(maxDepthResult, sum);
+            }
+            maxDepthDfs(root.left, sum + 1);
+            maxDepthDfs(root.right, sum + 1);
+        }
+    }
+
     public int getTreeDepth(TreeNode root) {
         if (root == null) {
             return 0;
@@ -1971,15 +1990,11 @@ public class LeetCodeNote {
             int x = 0;
             if (p != null) {
                 x = p.val;
-            } else {
-                x = 0;
             }
 
             int y = 0;
             if (q != null) {
                 y = q.val;
-            } else {
-                y = 0;
             }
 
             // 对应位置的节点数值相加
@@ -2556,6 +2571,7 @@ public class LeetCodeNote {
         if (dp[amount] == Integer.MAX_VALUE - 1) {
             dp[amount] = -1;
         }
+        System.out.println(Arrays.toString(dp));
         return dp[amount];
     }
 
@@ -2592,8 +2608,6 @@ public class LeetCodeNote {
     private void dfsCombinationSum(int[] candidates, int index, int tempSum, int target, ArrayList<Integer> path, List<List<Integer>> res) {
         if (tempSum == target) {
             res.add(new ArrayList<>(path));
-            System.out.println(Arrays.toString(path.toArray()));
-
         } else {
             for (int i = index; i < candidates.length; i++) {
                 if (tempSum + candidates[i] <= target) {
@@ -2986,6 +3000,9 @@ public class LeetCodeNote {
      * 给你一个整数数组 nums ，找到其中最长严格递增子序列的长度。
      * 不是连续的哦
      * 输入：nums = [10,9,2,5,3,7,101,18]
+     * <p>
+     * dp[i] 是 以i为结尾的 最大递增子序列
+     * <p>
      * dp[0] = 10 // 1
      * dp[1] = 9  // 1
      * dp[2] = 2  // 1
@@ -3061,7 +3078,7 @@ public class LeetCodeNote {
                 if (!path.contains(nums[i])) {
                     ArrayList<Integer> newTemp = new ArrayList<>(path);
                     newTemp.add(nums[i]);
-                    dps(path,result,nums);
+                    dps(path, result, nums);
                 }
 
             }
@@ -3074,6 +3091,29 @@ public class LeetCodeNote {
      * 因为有负数,所以记录起来最大值 和 最小值
      */
     public int maxProduct(int[] nums) {
+        int[] maxDp = new int[nums.length];
+        int[] minDp = new int[nums.length];
+
+        if (nums[0] >= 0) {
+            maxDp[0] = nums[0];
+        } else {
+            minDp[0] = nums[0];
+        }
+        int result = nums[0];
+        for (int i = 1; i < nums.length; i++) {
+            if (nums[i] >= 0) {
+                maxDp[i] = Math.max(maxDp[i - 1] * nums[i], nums[i]);
+                minDp[i] = Math.min(minDp[i - 1] * nums[i], nums[i]);
+            } else {
+                maxDp[i] = Math.max(minDp[i - 1] * nums[i], nums[i]);
+                minDp[i] = Math.min(maxDp[i - 1] * nums[i], nums[i]);
+            }
+            result = Math.max(result, maxDp[i]);
+        }
+        return result;
+    }
+
+    public int maxProduct1(int[] nums) {
         //由于存在负数，那么会导致最大的变最小的，最小的变最大的。因此还需要维护当前最小值imin
         int max = Integer.MIN_VALUE, imax = 1, imin = 1;//阶段最大值 阶段最小值
         for (int i = 0; i < nums.length; i++) {
@@ -3300,8 +3340,8 @@ public class LeetCodeNote {
             }
             if (nums[i] == pre + 1) {
                 temp++;
-                result = Math.max(result, temp);
                 pre = nums[i];
+                result = Math.max(result, temp);
             } else {
                 temp = 1;
                 pre = nums[i];
@@ -3311,28 +3351,22 @@ public class LeetCodeNote {
     }
 
     public int longestConsecutive(int[] nums) {
-        Set<Integer> num_set = new HashSet<Integer>();
-        for (int num : nums) {
-            num_set.add(num);
+        int result = 0;
+        HashSet<Integer> set = new HashSet<>();
+        for (int i = 0; i < nums.length; i++) {
+            set.add(nums[i]);
         }
-
-        int longestStreak = 0;
-
-        for (int num : num_set) {
-            if (!num_set.contains(num - 1)) {
-                int currentNum = num;
-                int currentStreak = 1;
-
-                while (num_set.contains(currentNum + 1)) {
-                    currentNum++;
-                    currentStreak++;
-                }
-
-                longestStreak = Math.max(longestStreak, currentStreak);
+        for (int i = 0; i < nums.length; i++) {
+            int temp = 1;
+            int indexNum = nums[i];
+            while (set.contains(indexNum - 1)) {
+                temp++;
+                indexNum--;
             }
+            result = Math.max(result, temp);
         }
-
-        return longestStreak;
+        System.out.println(result);
+        return result;
 
     }
 
@@ -3423,6 +3457,7 @@ public class LeetCodeNote {
 
     /**
      * https://leetcode.cn/problems/er-cha-shu-de-zui-jin-gong-gong-zu-xian-lcof/
+     *
      * @param root
      * @param p
      * @param q
@@ -3672,8 +3707,8 @@ public class LeetCodeNote {
      *
      *
      *               1
-     *           2       5
-     *         3    | 6   7
+     *            2       5
+     *         3    4| 6   7
      * 比如  前序遍历 1,[2,3,4],[5,6,7]      根据 下面的 左节点 长度,可以拿到 234 左节点的前序
      *      中序遍历  [3,2,4],1,[6,5,7] 前面是 根的左节点, 后面是根的右节点      324 是 左节点的中序
      */
@@ -3684,10 +3719,10 @@ public class LeetCodeNote {
      */
     @Test
     public void testdeduceTree() {
-        deduceTree(new int[]{1, 2, 3, 4, 5, 6, 7}, new int[]{3, 2, 4, 1, 6, 5, 7});
+        buildTree1(new int[]{1, 2, 3, 4, 5, 6, 7}, new int[]{3, 2, 4, 1, 6, 5, 7});
     }
 
-    private TreeNode deduceTree(int[] preorder, int[] inorder) {
+    private TreeNode buildTree1(int[] preorder, int[] inorder) {
         // 时间 N的平方 ，递归了N次，里面又有个for循环，所以是N方 ，空间 n
         if (preorder.length == 0 || inorder.length == 0) {
             return null;
@@ -3706,9 +3741,8 @@ public class LeetCodeNote {
 
         int[] leftIn = Arrays.copyOfRange(inorder, 0, rootIndex);
         int[] rightIn = Arrays.copyOfRange(inorder, rootIndex + 1, inorder.length);
-        System.out.println(rootIndex + "---" + leftIn.length + 1);
-        TreeNode left = deduceTree(leftPre, leftIn);
-        TreeNode right = deduceTree(rightPre, rightIn);
+        TreeNode left = buildTree1(leftPre, leftIn);
+        TreeNode right = buildTree1(rightPre, rightIn);
         root.left = left;
         root.right = right;
         return root;
@@ -3997,6 +4031,61 @@ public class LeetCodeNote {
      *
      * @return
      */
+    public ListNode reverseBetween11(ListNode head, int left, int right) {
+        ListNode leftNode = head;
+        ListNode rightNode = head;
+        ListNode leftNodePre = null;
+        // 如果 left 和 right 从1开始，那么这里到i也从1开始就行了
+        for (int i = 1; i < right; i++) {
+            if (i < left) {
+                leftNodePre = leftNode;
+                leftNode = leftNode.next;
+
+            }
+            rightNode = rightNode.next;
+
+        }
+        // 避免影响到原来的值
+        ListNode rightNext = rightNode.next;
+        ListNode leftTemp = leftNode;
+        // 1->2->3->4-5-6  , 3,4
+        // leftPre = 1->2
+        System.out.println("leftPre:" + NodeUtils.printList(leftNodePre));
+        // left = 3->4-5-6
+        System.out.println("leftNode:" + NodeUtils.printList(leftNode));
+        // right = 4-5-6
+        System.out.println("rightNode:" + NodeUtils.printList(rightNode));
+        ListNode revert = revert(leftTemp, rightNext);
+        System.out.println("leftNode:" + NodeUtils.printList(leftNode));
+        // revert 是 4->3
+        System.out.println("revert：" + NodeUtils.printList(revert));
+        leftNode.next = rightNext;
+        // 变了 leftNode = > 4-3-5-6
+        if (leftNodePre != null) {
+            leftNodePre.next = revert;
+        } else {
+            // 也就是从left = 1
+            return revert;
+        }
+
+        return head;
+
+
+    }
+
+    private ListNode revert(ListNode leftNode, ListNode rightNode) {
+        ListNode pre = null;
+        ListNode cur = leftNode;
+        while (cur != rightNode) {
+            ListNode temp = cur.next;
+            cur.next = pre;
+
+            pre = cur;
+            cur = temp;
+        }
+        return pre;
+    }
+
     public ListNode reverseBetween(ListNode head, int left, int right) {
 
         // （1）初始化指针
@@ -4308,8 +4397,42 @@ public class LeetCodeNote {
         node4.next = node5;
         ListNode node6 = new ListNode(6);
         node5.next = node6;
-        sortList(head);
+        System.out.println("排序lian：" + NodeUtils.printList(sortList(head)));
 
+
+    }
+
+    /**
+     * 使用优先级队列
+     *
+     * @param head
+     * @return
+     */
+    public ListNode sortList1(ListNode head) {
+        PriorityQueue<ListNode> queue = new PriorityQueue<>(new Comparator<ListNode>() {
+            @Override
+            public int compare(ListNode node1, ListNode node2) {
+                return node1.val - node2.val;
+            }
+        });
+        ListNode cur = head;
+        while (cur != null) {
+            queue.add(cur);
+            cur = cur.next;
+        }
+        ListNode result = queue.poll();
+        ListNode temp = result;
+        while (!queue.isEmpty()) {
+            ListNode node = queue.poll();
+            if (node != null) {
+                node.next = null;
+            }
+            temp.next = node;
+
+            temp = temp.next;
+
+        }
+        return result;
 
     }
 
@@ -4384,6 +4507,43 @@ public class LeetCodeNote {
 
     }
 
+    public int[][] merge1(int[][] intervals) {
+        // 先排序
+        Arrays.sort(intervals, new Comparator<int[]>() {
+            @Override
+            public int compare(int[] o1, int[] o2) {
+                return o1[0] - o2[0];
+            }
+        });
+        ArrayList<int[]> list = new ArrayList<>();
+        // 先记录left和right
+        int right = intervals[0][1];
+        int left = intervals[0][0];
+        for (int i = 1; i < intervals.length; i++) {
+            if (intervals[i][0] > right) {
+                // 如果当前大于了，那么就不能合并
+                list.add(new int[]{left, right});
+
+                // 然后再设置新值
+                left = intervals[i][0];
+                right = intervals[i][1];
+            } else {
+                // 如果当前的right 大于 right，那么right就能合并
+                if (intervals[i][1] > right) {
+                    right = intervals[i][1];
+                }
+            }
+        }
+        // 最后一个添加到集合中
+        list.add(new int[]{left, right});
+        int[][] result = new int[list.size()][2];
+        for (int i = 0; i < list.size(); i++) {
+            result[i] = list.get(i);
+        }
+        return result;
+
+    }
+
     public int[][] merge(int[][] intervals) {
         // 先按照区间起始位置排序
         Arrays.sort(intervals, new Comparator<int[]>() {
@@ -4426,6 +4586,32 @@ public class LeetCodeNote {
      * @return 输入：head = [1,2,3,3,4,4,5]
      * 输出：[1,2,5]
      */
+    public ListNode deleteDuplicates12(ListNode head) {
+        if (head == null) return null;
+        ListNode pre = null;
+        ListNode cur = head;
+        while (cur != null && cur.next != null) {
+            if (cur.val == cur.next.val) {
+                int val = cur.val;
+                while (cur != null && cur.val == val) {
+                    cur = cur.next;
+                }
+                // 此时就拿到了不为null ，把上个节点写到这里
+                if (pre != null) {
+                    pre.next = cur;
+                } else {
+                    // 如果是null,证明是从头开始过滤的，此时我们把head给cur即可
+                    head = cur;
+                }
+
+            } else {
+                pre = cur;
+                cur = cur.next;
+            }
+        }
+        return head;
+    }
+
     public ListNode deleteDuplicates2(ListNode head) {
         if (head == null) return null;
         ListNode dummyHead = new ListNode(-101);
@@ -4507,10 +4693,18 @@ public class LeetCodeNote {
      * https://leetcode.cn/problems/longest-common-subsequence/
      * 1143. 最长公共子序列 , 顺序必须一样，并不是连续的
      * 输入：text1 = "abcde", text2 = "ace"
-     * a b c d e
+     * 0 a b c d e
      * a 1 1 1 1 1
      * c 1 1 2 2 1
      * e 1 1 2 2 3
+     * <p>
+     * 0 b s b i n i n m
+     * j 0 0 0 0 0 0 0 0
+     * m 0 0 0 0 0 0 0 1
+     * j 0 0 0 0 0 0 0 1
+     * k 0 0 0 0 0 0 0 1
+     * b 1 1 1 1 1 1 1 1
+     * ---- 这里出问题了
      * 输出：3
      * 解释：最长公共子序列是 "ace" ，它的长度为 3 。
      * https://leetcode.cn/problems/longest-common-subsequence/solution/shi-pin-jiang-jie-shi-yong-dong-tai-gui-hua-qiu-ji/
@@ -4523,15 +4717,15 @@ public class LeetCodeNote {
      * @return a
      */
     public int longestCommonSubsequence(String text1, String text2) {
-        int ans = -1;
+        int ans = 0;
         int text1Length = text1.length();
         int text2Length = text2.length();
-        int dp[][] = new int[text1Length + 1][text2Length + 1];
-        for (int i = 1; i < dp.length; i++) {
-            char ch1 = text1.charAt(i - 1);
-            for (int j = 1; j < dp[i].length; j++) {
-                char ch2 = text2.charAt(j - 1);
-                if (ch1 == ch2) {
+        int[][] dp = new int[text1Length + 1][text2Length + 1];
+        for (int i = 1; i < text1Length + 1; i++) {
+            for (int j = 1; j < text2Length + 1; j++) {
+                if (text1.charAt(i - 1) == text2.charAt(j - 1)) {
+                    // 这里为啥是dp[i - 1][j - 1] + 1 而不是 Math.max(dp[i - 1][j], dp[i][j - 1])+1呢
+                    // 因为
                     dp[i][j] = dp[i - 1][j - 1] + 1;
                 } else {
                     dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);
@@ -4540,7 +4734,7 @@ public class LeetCodeNote {
             }
         }
 //  这下面两个是一样的 因为是不连续的所以 后面一定会比前面大，一只加上来的
-        return dp[text1Length][text2Length];
+        return ans;
 //        return ans;
     }
 
@@ -5378,26 +5572,39 @@ public class LeetCodeNote {
     public List<List<Integer>> subsets(int[] nums) {
         List<List<Integer>> res = new ArrayList<>();
         List<Integer> state = new ArrayList<>();
-        back(res, state, nums, 0);
+        preOrder(res, state, nums, 0);
         return res;
 
     }
 
-    public void back(List<List<Integer>> res, List<Integer> state, int[] nums, int n) {
+    public void preOrder1(List<List<Integer>> res, List<Integer> state, int[] nums, int n) {
         if (n == nums.length) {
             res.add(new ArrayList<>(state));
-            for (int ddd : state) {
-                System.out.print(ddd);
-            }
-            System.out.println("------- " + n);
+        } else {
 
+            ArrayList<Integer> left = new ArrayList<>(state);
+            // 不选择对应的，相当于移除
+            preOrder1(res, left, nums, n + 1);
+
+
+            ArrayList<Integer> right = new ArrayList<>(state);
+            right.add(nums[n]);
+            // 选择对应的 前序遍历
+            preOrder1(res, right, nums, n + 1);
+
+        }
+    }
+
+    public void preOrder(List<List<Integer>> res, List<Integer> state, int[] nums, int n) {
+        if (n == nums.length) {
+            res.add(new ArrayList<>(state));
         } else {
             // 选择对应的 前序遍历
             state.add(nums[n]);
-            back(res, state, nums, n + 1);
+            preOrder(res, state, nums, n + 1);
             // 不选择对应的，相当于移除
             state.remove(state.size() - 1);
-            back(res, state, nums, n + 1);
+            preOrder(res, state, nums, n + 1);
 
         }
 
@@ -5798,6 +6005,61 @@ public class LeetCodeNote {
             swap(nums, start++, end--);
     }
 
+    /**
+     * 1. 双层for ，从后往前找，找到一个比前大的数，找到left right
+     * 2. 交换left right
+     * 3. 再把left 后面的重新 由小到达排序
+     * 4. 如果没找到，left 那么就是最大值了，直接soft即可
+     *
+     * @param nums
+     */
+    public void nextPermutation2(int[] nums) {
+        // 从最后一位找到一个比较小的大值往前交换，交换之后，后面再重新排序
+        int left = -1;
+        int right = -1;
+
+        outerLoop:
+        for (int i = nums.length - 2; i >= 0; i--) {
+            // 找到后面一个比前面一个的大
+            for (int j = nums.length - 1; j > i; j--) {
+                if (nums[i] < nums[j]) {
+                    left = i;
+                    right = j;
+                    break outerLoop;
+                }
+            }
+        }
+
+        System.out.println(left + "--" + right);
+        // 找到了
+        if (left != -1) {
+            swapNums(left, right, nums);
+            System.out.println("交换后：" + Arrays.toString(nums));
+            soft(nums, left + 1);
+        } else {
+            Arrays.sort(nums);
+        }
+
+    }
+
+    private void soft(int[] nums, int index) {
+        for (int i = index; i < nums.length; i++) {
+            for (int j = i + 1; j < nums.length; j++) {
+                if (nums[j] < nums[i]) {
+                    swapNums(i, j, nums);
+                }
+            }
+        }
+    }
+
+
+    private void swapNums(int left, int right, int[] nums) {
+        int temp = nums[left];
+        nums[left] = nums[right];
+        nums[right] = temp;
+    }
+
+
     @Test
     public void testCon() {
         constructMaximumBinaryTree(new int[]{3, 2, 1, 6, 0, 5});
@@ -5829,6 +6091,109 @@ public class LeetCodeNote {
             }
         }
         return index;
+    }
+
+    public void reorderList(ListNode head) {
+        // 先存放在list中
+        LinkedList<ListNode> nodes = new LinkedList<>();
+        ListNode temp = head;
+        while (temp != null) {
+            nodes.add(temp);
+            temp = temp.next;
+        }
+        ListNode preLast = null;
+        while (!nodes.isEmpty()) {
+            // 先拿第一个
+            ListNode first = nodes.removeFirst();
+            // 把first的下一个设置未null
+            first.next = null;
+            if (preLast != null) {
+                // 把上一个的last给到first
+                preLast.next = first;
+            }
+            ListNode last = null;
+            if (!nodes.isEmpty()) {
+                // 再拿倒数
+                last = nodes.removeLast();
+                // 把last的下一个设置未null
+                last.next = null;
+                // 记录 last
+                preLast = last;
+
+            }
+            // 把first的next 给到last
+            first.next = last;
+
+        }
+    }
+
+    /**
+     * 129. 求根节点到叶节点数字之和
+     * 给你一个二叉树的根节点 root ，树中每个节点都存放有一个 0 到 9 之间的数字。
+     * 每条从根节点到叶节点的路径都代表一个数字：
+     * <p>
+     * 例如，从根节点到叶节点的路径 1 -> 2 -> 3 表示数字 123 。
+     * 计算从根节点到叶节点生成的 所有数字之和 。
+     * <p>
+     * 叶节点 是指没有子节点的节点。
+     */
+    int sum = 0;
+
+    public int sumNumbers(TreeNode root) {
+        if (root == null) {
+            return 0;
+        }
+        preOrder(root, 0);
+        return sum;
+    }
+
+    public void preOrder(TreeNode root, int temp) {
+        if (root == null) {
+            return;
+        }
+        // 相当于到了下一层 就乘以 10
+        temp = temp * 10 + root.val;
+        if (root.right == null && root.left == null) {
+            sum = sum + temp;
+        } else {
+            preOrder(root.left, temp);
+            preOrder(root.right, temp);
+
+        }
+    }
+
+    /**
+     * 662. 二叉树最大宽度
+     * https://leetcode.cn/problems/maximum-width-of-binary-tree/description/
+     *
+     * @param root
+     * @return
+     */
+    public int widthOfBinaryTree(TreeNode root) {
+        int result = 0;
+        LinkedList<TreeNode> list = new LinkedList<>();
+        if (root != null) {
+            root.val = 1;
+            list.add(root);
+            result = 1;
+        }
+        while (!list.isEmpty()) {
+            int size = list.size();
+            result = Math.max(result, list.getLast().val - list.getFirst().val + 1);
+
+            for (int i = 0; i < size; i++) {
+                TreeNode temp = list.removeFirst();
+                if (temp.left != null) {
+                    temp.left.val = temp.val * 2;
+                    list.add(temp.left);
+                }
+                if (temp.right != null) {
+                    temp.right.val = temp.val * 2 + 1;
+                    list.add(temp.right);
+                }
+            }
+        }
+        return result;
     }
 
 
