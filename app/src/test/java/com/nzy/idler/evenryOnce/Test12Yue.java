@@ -2499,20 +2499,21 @@ L0 → Ln → L1 → Ln - 1 → L2 → Ln - 2 → …
      * 7
      */
     public int findLength(int[] nums1, int[] nums2) {
-        int[][] dp = new int[nums1.length-1][nums2.length-1];
+        int[][] dp = new int[nums1.length - 1][nums2.length - 1];
         int result = 0;
         for (int i = 0; i < nums1.length; i++) {
             for (int j = 0; j < nums2.length; j++) {
-                if (nums1[i+1] == nums2[j+1]) {
-                    dp[i+1][j+1] = dp[i][j ] + 1;
+                if (nums1[i + 1] == nums2[j + 1]) {
+                    dp[i + 1][j + 1] = dp[i][j] + 1;
                 } else {
-                    dp[i+1][j+1] = Math.max(dp[i][j+1], dp[i+1][j]);
+                    dp[i + 1][j + 1] = Math.max(dp[i][j + 1], dp[i + 1][j]);
                 }
-                result = Math.max(result,dp[i+1][j+1]);
+                result = Math.max(result, dp[i + 1][j + 1]);
             }
         }
         return result;
     }
+
     /**
      * text1 = "abcde", text2 = "ace"
      * a b c d e
@@ -2543,4 +2544,329 @@ L0 → Ln → L1 → Ln - 1 → L2 → Ln - 2 → …
         return result;
 
     }
+
+    /**
+     * [1,2,3,4]
+     *
+     * @param nums
+     * @return
+     */
+    public int rob(int[] nums) {
+        if (nums.length == 0) {
+            return 0;
+        }
+        if (nums.length == 1) {
+            return nums[0];
+        }
+        if (nums.length == 2) {
+            return Math.max(nums[0], nums[1]);
+        }
+
+        int[] dp = new int[nums.length];
+        dp[0] = nums[0];
+        dp[1] = Math.max(nums[0], nums[1]);
+        for (int i = 2; i < nums.length; i++) {
+            dp[i] = Math.max(dp[i - 2] + nums[i], dp[i - 1]);
+        }
+        return dp[nums.length - 1];
+    }
+
+    public int rob1(int[] nums) {
+
+        // 先赋值第一个,因为下面for循环,不能从0开始
+        if (nums.length == 0) {
+            return 0;
+        }
+        if (nums.length == 1) {
+            return nums[0];
+        }
+        if (nums.length == 2) {
+            return Math.max(nums[0], nums[1]);
+        }
+        int pre = nums[0];
+        int cur = Math.max(nums[0], nums[1]);
+        for (int i = 2; i < nums.length; i++) {
+            // 主要是动态方程 i-2 就可以取 nums[i] , 要不就是i-1 不能取 nums[i]
+            int max = Math.max(pre + nums[i], cur);
+            pre = cur;
+            cur = max;
+
+        }
+        return cur;
+    }
+
+    public ListNode deleteDuplicates11(ListNode head) {
+        ListNode temp = head;
+        while (temp != null && temp.next != null) {
+            while (temp.next != null && temp.val == temp.next.val) {
+                temp.next = temp.next.next;
+            }
+            temp = temp.next;
+        }
+        return head;
+    }
+
+    public TreeNode invertTree(TreeNode root) {
+        if (root != null) {
+            TreeNode left = invertTree(root.left);
+            TreeNode right = invertTree(root.right);
+            root.left = right;
+            root.right = left;
+        }
+        return root;
+    }
+
+    public int minSubArrayLen(int s, int[] nums) {
+        int left = 0;
+        int right = 0;
+        int sum = 0;
+        int result = Integer.MAX_VALUE;
+        while (right < nums.length) {
+            sum = sum + nums[right];
+            while (sum > s && left <= right) {
+                result = Math.min(result, right - left + 1);
+
+                sum = sum - nums[left];
+            }
+            right++;
+        }
+        if (result == Integer.MAX_VALUE) {
+            return 0;
+        }
+        return result;
+    }
+
+    // 1->2->3->4-
+    // 4->3-
+    // 1 - 4 -3
+    public ListNode swapPairs(ListNode head) {
+        if (head == null || head.next == null) {
+            return head;
+        }
+        ListNode temp = head.next;
+
+        ListNode swap = swapPairs(temp.next);
+        head.next = swap;
+        temp.next = head;
+        return temp;
+
+    }
+
+    public void moveZeroes(int[] nums) {
+        int left = 0;// 做好的头
+        int right = 0; // 移动的尾
+        while (right < nums.length) {
+            if (nums[right] != 0) {
+                nums[left] = nums[right];
+                nums[right] = 0;
+                left++;
+            }
+            right++;
+
+        }
+    }
+
+    // 奇前，偶后
+    public void moveJiOuShu(int[] nums) {
+        int left = 0;// 做好的头
+        int right = 0; // 移动的尾
+        while (right < nums.length) {
+            if (nums[right] % 2 != 0) {
+                // 把 left到right 移动过去
+                int temp = nums[right];
+                for (int i = right; i > left; i--) {
+                    nums[i] = nums[i - 1];
+                }
+                nums[left] = temp;
+                left++;
+            }
+            right++;
+
+        }
+    }
+
+    public int[] dailyTemperatures(int[] temperatures) {
+        int[] result = new int[temperatures.length];
+        for (int i = 0; i < temperatures.length; i++) {
+            int temp = 0;
+            for (int j = i + 1; j < temperatures.length; j++) {
+                if (temperatures[i] > temperatures[j]) {
+                    temp = j - i;
+                } else {
+                    break;
+                }
+            }
+            result[i] = temp;
+        }
+        return result;
+    }
+
+
+    /*
+          7
+        6
+      5
+    4
+                3
+             1
+           0
+     * @param nums
+     * @return
+     */
+
+    public int findMin(int[] nums) {
+        int left = 0;
+        int right = nums.length;
+
+        while (right > left) {
+            int mid = left + (right - left) / 2;
+        }
+        return 1;
+    }
+
+    public int maxArea(int[] height) {
+        int result = 0;
+        int left = 0;
+        int right = height.length - 1;
+        while (right > left) {
+            int cur = Math.min(height[left], height[right]) * (right - left);
+            result = Math.max(cur, result);
+            if (height[left] > height[right]) {
+                right--;
+            } else {
+                left++;
+            }
+        }
+        return result;
+    }
+
+
+
+    /*
+        [[1,2,3],
+         [4,5,6],
+         [7,8,9]]
+输出：[1,2,4,7,5,3,6,8,9]
+
+[ [1,2,3],
+  [4,5,6],
+  [7,8,9] ]，输出 3,2,6,1,5,9,4,8,7
+     */
+
+    /**
+     * 1 2 3 4
+     * 1 2 3 4
+     * 1 2 3 4
+     * 1 2 3 4
+     * <p>
+     * [3,1] [2,2],[1,3]
+     * [3,2] [2,3]
+     *
+     * @param nums
+     * @return
+     */
+
+    @Test
+    public void testfindDiagonalOrder() {
+        List<List<Integer>> temp = new ArrayList<>();
+        ArrayList<Integer> i = new ArrayList<>();
+        i.add(1);
+        i.add(2);
+        i.add(3);
+        i.add(4);
+        temp.add(i);
+        temp.add(i);
+        temp.add(i);
+        temp.add(i);
+        findDiagonalOrder(temp);
+    }
+
+    public int[] findDiagonalOrder(List<List<Integer>> nums) {
+
+        ArrayList<Integer> temp = new ArrayList<>();
+        int m = nums.size();
+        for (int i = 0; i < m; i++) {
+            for (int start = i; start >= 0; start--) {
+                //  3,0 ,2,1 ,1,2,0,3
+                if (nums.get(start).size() > i - start) {
+                    temp.add(nums.get(start).get(i - start));
+                }
+            }
+        }
+        for (int i = 0; i < nums.get(m - 1).size(); i++) {
+
+        }
+        int[] result = new int[temp.size()];
+        for (int i = 0; i < temp.size(); i++) {
+            result[i] = temp.get(i);
+        }
+        System.out.println(Arrays.toString(result));
+        return result;
+    }
+
+    public boolean canJump(int[] nums) {
+        int k = nums[0];
+        for (int i = 0; i < k; i++) {
+            if (i + nums[i] >= nums.length) {
+                return true;
+            } else {
+                k = Math.max(k, nums[i] + i);
+            }
+        }
+        return false;
+    }
+
+    @Test
+    public void testreverse1() {
+//        reverse(-2463847418);
+    }
+
+    public int reverse(int x) {
+        int ret = 1;
+        if (x >= 0) {
+            ret = 1;
+        } else {
+            x = x * -1;
+            ret = -1;
+        }
+        String str = x + "";
+        char[] temp = str.toCharArray();
+        int left = 0;
+        int right = temp.length - 1;
+        while (right > left) {
+            char tempRight = temp[right];
+            temp[right] = temp[left];
+            temp[left] = tempRight;
+            right--;
+            left++;
+        }
+        String result = new String(temp);
+        long tempResult = Long.parseLong(result) * ret;
+        if (tempResult > Integer.MAX_VALUE || tempResult < Integer.MIN_VALUE) {
+            return 0;
+        }
+        return Integer.parseInt(result) * ret;
+    }
+
+    public void flatten(TreeNode root) {
+//        if (root != null) {
+////            TreeNode left = flatten(root.left);
+//            TreeNode tempLeft = root.left;
+//            TreeNode tempRight = root.right;
+//
+//            root.left
+//            root.left=null;
+//        }
+    }
+
+
+    @Test
+    public void testThread() {
+//        System.out.println("--------------------");
+        System.out.println(ConstClass.value);
+//        System.out.println("--------------------");
+//        ConstClass constClass = new ConstClass();
+    }
+
+
 }

@@ -193,6 +193,20 @@ public class LeetCodeNote {
         return head;
     }
 
+    public ListNode deleteDuplicates11(ListNode head) {
+        if (head == null) {
+            return null;
+        }
+        ListNode temp = head;
+        while (temp != null && temp.next != null) {
+            while (temp.next != null && temp.val == temp.next.val) {
+                temp.next = temp.next.next;
+            }
+            temp = temp.next;
+        }
+        return head;
+    }
+
 
     ///------------------------ 4 ---------------------
 
@@ -1114,6 +1128,16 @@ public class LeetCodeNote {
             root.right = temp;
             invertTree(root.left);
             invertTree(root.right);
+        }
+        return root;
+    }
+
+    public TreeNode invertTree1(TreeNode root) {
+        if (root != null) {
+            TreeNode left = invertTree1(root.left);
+            TreeNode right = invertTree1(root.right);
+            root.left = right;
+            root.right = left;
         }
         return root;
     }
@@ -5212,6 +5236,7 @@ public class LeetCodeNote {
 
 
     ///------------------------ 79 ---------------------
+
     /**
      * 139. 单词拆分
      * dp[j] 表示第j个是否满足条件，如果第j个满足 则看 j-i 是否满足,如果j到i也满足，那么dp[i]就满足
@@ -5221,20 +5246,21 @@ public class LeetCodeNote {
      * <p>
      * 两次for循环，第一层是 就是 i，第二层是 i 之前 看看是不是满足
      */
-    public HashMap<String, Boolean> hash = new HashMap<>();
+
 
     public boolean wordBreak(String s, List<String> wordDict) {
+        HashMap<String, Boolean> map = new HashMap<>();
         boolean[] dp = new boolean[s.length() + 1];
 
         //方便check，构建一个哈希表
         for (String word : wordDict) {
-            hash.put(word, true);
+            map.put(word, true);
         }
         dp[0] = true;
         for (int i = 1; i <= s.length(); i++) {
             for (int j = 0; j < i; j++) {
 
-                if (dp[j] && check(s.substring(j, i))) {
+                if (dp[j] && map.getOrDefault(s.substring(j, i), false)) {
                     //dp[j] 表示第j个是否满足条件，如果第j个满足 则看 j-i 是否满足,如果j到i也满足，那么dp[i]就满足
                     // 如果不满足这个条件继续往下找j
                     dp[i] = true;
@@ -5244,10 +5270,6 @@ public class LeetCodeNote {
         }
 
         return dp[s.length()];
-    }
-
-    public boolean check(String s) {
-        return hash.getOrDefault(s, false);
     }
 
 
@@ -5460,46 +5482,24 @@ public class LeetCodeNote {
      * <p>
      * 114. 二叉树展开为链表
      */
-
     public void flatten(TreeNode root) {
-
-        ArrayList<TreeNode> list = new ArrayList<>();
-        dfsflatten(root, list);
-        for (int i = 0; i < list.size(); i++) {
-            TreeNode node = list.get(i);
-            node.left = null;
-            node.right = null;
-            TreeNode right = null;
-            if (i != list.size() - 1) {
-                right = list.get(i + 1);
-            }
-            node.right = right;
-        }
-    }
-
-    private void dfsflatten(TreeNode root, ArrayList<TreeNode> list) {
-        if (root != null) {
-            list.add(root);
-            dfs(root.left);
-            dfs(root.right);
-        }
-    }
-
-    public void flatten1(TreeNode root) {
         if (root == null) {
             return;
         }
         //将根节点的左子树变成链表
-        flatten1(root.left);
+        flatten(root.left);
         //将根节点的右子树变成链表
-        flatten1(root.right);
+        flatten(root.right);
+
         TreeNode temp = root.right;
         //把树的右边换成左边的链表
         root.right = root.left;
         //记得要将左边置空
         root.left = null;
         //找到树的最右边的节点
-        while (root.right != null) root = root.right;
+        while (root.right != null) {
+            root = root.right;
+        }
         //把右边的链表接到刚才树的最右边的节点
         root.right = temp;
     }
@@ -5843,6 +5843,16 @@ public class LeetCodeNote {
         }
         return -1;
     }
+
+    /*
+            7
+        6
+      5
+    4
+                   2
+                1
+              0
+     */
 
     /**
      * 旋转数组最小值
