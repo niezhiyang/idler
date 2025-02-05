@@ -24,6 +24,101 @@ import java.util.Stack;
  * since 12/3/21
  */
 public class LeetCodeNote {
+    private  int number = 1;
+    private  final int MAX_NUMBER = 100;
+    private Object lock = new Object();
+
+    /**直到 打印到 100
+     * 线程A打印 ，1 ，4，7，10
+     * 线程B打印 ，2，5，8，11
+     * 线程C打印 ，3，6，9，12
+     * 这里在这里打印是打印不出来的，或者是不全的，所以要在项目中运行，才能真正的打印，是@Test的问题
+     * 注意点，使用
+     *  synchronized (lock) 方式，因为notifyAll() 和 wait() 都是Object的方法，且必须配合synchronized使用
+     */
+    @Test
+    public void testThread(){
+        Thread threadA = new Thread() {
+            public void run() {
+                while (true) {
+                    synchronized (lock) {
+                        if (number > MAX_NUMBER) {
+                            System.out.println("Thread A: 大于100 " + number);
+                            break;
+                        }
+                        if (number % 3 == 1) {
+                            System.out.println("Thread A: " + number);
+                            number++;
+                            lock.notifyAll();
+                        } else {
+                            try {
+                                lock.wait();
+                            } catch (InterruptedException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    }
+                }
+                System.out.println("Thread A: 运行完毕");
+            }
+        };
+
+        Thread threadB = new Thread() {
+            public void run() {
+                while (true) {
+                    synchronized (lock) {
+                        if (number > MAX_NUMBER) {
+                            System.out.println("Thread B: 大于100 " + number);
+                            break;
+                        }
+                        if (number % 3 == 2) {
+                            System.out.println("Thread B: " + number);
+                            number++;
+                            lock.notifyAll();
+
+                        } else {
+                            try {
+                                lock.wait();
+                            } catch (InterruptedException e) {
+                                throw new RuntimeException(e);
+                            }
+                        }
+                    }
+                }
+                System.out.println("Thread B: 运行完毕");
+            }
+        };
+        Thread threadC = new Thread() {
+            public void run() {
+                while (true) {
+                    synchronized (lock) {
+                        if (number > MAX_NUMBER) {
+                            System.out.println("Thread C: 大于100 " + number);
+                            break;
+                        }
+                        if (number % 3 == 0) {
+                            System.out.println("Thread C: " + number);
+                            number++;
+                            lock.notifyAll();
+
+                        } else {
+                            try {
+                                lock.wait();
+                            } catch (InterruptedException e) {
+                                throw new RuntimeException(e);
+                            }
+
+                        }
+                    }
+                }
+                System.out.println("Thread C: 运行完毕");
+            }
+        };
+
+        threadA.start();
+        threadB.start();
+        threadC.start();
+    }
 
 //给定一个数组 nums,编写一个函数将所有 0 移动到数组的末尾,同时保持非零元素的相对顺序。
 //
