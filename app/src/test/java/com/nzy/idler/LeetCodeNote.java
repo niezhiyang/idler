@@ -28,7 +28,8 @@ public class LeetCodeNote {
     private  final int MAX_NUMBER = 100;
     private Object lock = new Object();
 
-    /**直到 打印到 100
+    /** ✨👍🌟✨👍🌟✨👍🌟这个必须自己写出来✨👍🌟✨👍🌟✨👍🌟
+     * 直到 打印到 100
      * 线程A打印 ，1 ，4，7，10
      * 线程B打印 ，2，5，8，11
      * 线程C打印 ，3，6，9，12
