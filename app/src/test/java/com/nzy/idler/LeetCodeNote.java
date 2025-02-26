@@ -27,6 +27,7 @@ public class LeetCodeNote {
     private int number = 1;
     private final int MAX_NUMBER = 100;
     private Object lock = new Object();
+    // 🤍💗💗💗💗快速排序💗💗💗💗 必须会
 
     /**
      * ✨👍🌟✨👍🌟✨👍🌟这个必须自己写出来✨👍🌟✨👍🌟✨👍🌟
@@ -447,7 +448,7 @@ public class LeetCodeNote {
         return length;
     }
 
-///------------------------ 7 ---------------------
+    ///------------------------ 7 ---------------------
 
     /**
      * 链表倒数第K个节点
@@ -2452,11 +2453,12 @@ public class LeetCodeNote {
             if (index == -1) {
                 map.put(c, right);
                 // 记住要加1 你就认为 一个 a ,所以这里得加1
-                if (right - left + 1 > maxLength) {
-                    maxLength = right - left + 1;
-                    reslut = s.substring(left, right + 1);
-                    System.out.println(reslut);
-                }
+//                if (right - left + 1 > maxLength) {
+//                    maxLength = right - left + 1;
+//                    reslut = s.substring(left, right + 1);
+//                    System.out.println(reslut);
+//                }
+                maxLength = Math.max(right - left + 1,maxLength);
                 right++;
 
             } else {
@@ -3192,17 +3194,17 @@ public class LeetCodeNote {
         } else {
             for (int i = 0; i < nums.length; i++) {
                 // 还需要回溯
-//                if (!path.contains(nums[i])) {
-//                    ArrayList<Integer> temp = new ArrayList<>(path);
-//                    temp.add(nums[i]);
-//                    dps(temp, result, nums);
-//                }
-                // 下面直接不用回溯了
                 if (!path.contains(nums[i])) {
-                    ArrayList<Integer> newTemp = new ArrayList<>(path);
-                    newTemp.add(nums[i]);
+                    path.add(nums[i]);
                     dps(path, result, nums);
+                    path.remove(path.size()-1);
                 }
+//                // 下面直接不用回溯了
+//                if (!path.contains(nums[i])) {
+//                    ArrayList<Integer> newTemp = new ArrayList<>(path);
+//                    newTemp.add(nums[i]);
+//                    dps(path, result, nums);
+//                }
 
             }
         }
@@ -4338,6 +4340,7 @@ public class LeetCodeNote {
     ///------------------------ 66 ---------------------
 
     /**
+     * https://blog.csdn.net/qq_52487066/article/details/126358470
      * 快速排序
      * 哨兵 j 在最右边
      * 哨兵 i 在最左边
@@ -4365,7 +4368,7 @@ public class LeetCodeNote {
             return;
         }
 
-        // 核心算法部分：分别介绍 双边指针（交换法）
+        // 核心算法部分：分别介绍 双边指针（交换法），如果startIndex和endIndex相遇，就把pivot放到这个相遇的地方
         int pivotIndex = doublePointerSwap2(arr, startIndex, endIndex);
 
         // 用分界值下标区分出左右区间,进行递归调用
@@ -4387,43 +4390,29 @@ public class LeetCodeNote {
      * 结束循环后将当前指针数据与分界值互换,
      * 返回当前指针下标（即分界值下标）
      */
-    private int doublePointerSwap2(int[] arr, int startIndex, int endIndex) {
-        // 默认基准是 第一个
-        int pivot = arr[startIndex];
-        int leftPoint = startIndex;
-        int rightPoint = endIndex;
-
-        while (leftPoint < rightPoint) {
-            // 从右向左找出比pivot小的数据
-            while (leftPoint < rightPoint) {
-                if (arr[rightPoint] > pivot) {
-                    rightPoint--;
-                } else {
-                    break;
-                }
-
+    private int doublePointerSwap2(int[] array, int left, int right) {
+        //取左边界元素为基准值，该位置“挖坑”，因为找的基准是第一个，所有从右边开始
+        int key = array[left];
+        int start = left;
+        int end = right;
+        while (start < end) {
+            //从右往左扫描，寻找比key小的记录
+            while (start < end && array[end] >= key) {
+                end--;
             }
-            // 从左向右找出比pivot大的数据
-            while (leftPoint < rightPoint) {
-                if (arr[leftPoint] <= pivot) {
-                    leftPoint++;
-                } else {
-                    break;
-                }
-
+            // 这里就是找到了end，让后放到start的为止，🤍下面就该移动start了🤍
+            array[start] = array[end];
+            //从左往右扫描，寻找比key大的记录
+            while (start < end && array[start] <= key) {
+                start++;
             }
-            // 没有过界则交换
-            if (leftPoint < rightPoint) {
-                int temp = arr[leftPoint];
-                arr[leftPoint] = arr[rightPoint];
-                arr[rightPoint] = temp;
-            }
+            array[end] = array[start];
         }
-        // 最终将分界值与当前指针数据交换
-        arr[startIndex] = arr[rightPoint];
-        arr[rightPoint] = pivot;
-        // 返回分界值所在下标
-        return rightPoint;
+        //start与end相等时的位置，即到达基准值位置
+        array[start] = key;
+        //返回基准值的下标
+        return start;
+
     }
 
     ///------------------------ 65 ---------------------
@@ -5325,6 +5314,7 @@ public class LeetCodeNote {
         for (int row = 0; row < height + 1; row++) {
             for (int col = 0; col < width; col++) {
                 if (matrix[row][col] == '1') {
+                    // 上，左，左上
                     dp[row + 1][col + 1] = Math.min(Math.min(dp[row + 1][col], dp[row][col + 1]), dp[row][col]) + 1;
                     maxSide = Math.max(maxSide, dp[row + 1][col + 1]);
                 }
@@ -5667,15 +5657,6 @@ public class LeetCodeNote {
     public void subsetsTest() {
         subsets(new int[]{1, 2, 3});
     }
-
-    public List<List<Integer>> subsets(int[] nums) {
-        List<List<Integer>> res = new ArrayList<>();
-        List<Integer> state = new ArrayList<>();
-        preOrder(res, state, nums, 0);
-        return res;
-
-    }
-
     public void preOrder1(List<List<Integer>> res, List<Integer> state, int[] nums, int n) {
         if (n == nums.length) {
             res.add(new ArrayList<>(state));
@@ -5693,6 +5674,15 @@ public class LeetCodeNote {
 
         }
     }
+    public List<List<Integer>> subsets(int[] nums) {
+        List<List<Integer>> res = new ArrayList<>();
+        List<Integer> state = new ArrayList<>();
+        preOrder1(res, state, nums, 0);
+        return res;
+
+    }
+
+
 
     public void preOrder(List<List<Integer>> res, List<Integer> state, int[] nums, int n) {
         if (n == nums.length) {
