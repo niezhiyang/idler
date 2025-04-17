@@ -4454,7 +4454,7 @@ public class LeetCodeNote {
         PriorityQueue<Integer> minHeap = new PriorityQueue<>();
         // Java 里没有 heapify ，因此我们逐个将前 k 个元素添加到 minHeap 里
         for (int i = 0; i < k; i++) {
-            minHeap.offer(nums[i]);
+            minHeap.add(nums[i]);
         }
 
         for (int i = k; i < len; i++) {
@@ -4464,7 +4464,7 @@ public class LeetCodeNote {
             if (nums[i] > topElement) {
                 // Java 没有 replace()，所以得先 poll() 出来，然后再放回去
                 minHeap.poll();
-                minHeap.offer(nums[i]);
+                minHeap.add(nums[i]);
             }
         }
         return minHeap.peek();
