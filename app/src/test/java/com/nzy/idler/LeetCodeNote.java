@@ -4773,7 +4773,7 @@ public class LeetCodeNote {
     public int mySqrt(int x) {
         int left = 0, right = x, reslut = -1;
         while (left <= right) {
-            int mid = left + (right - left) / 2;
+            int mid = (left + right)/ 2;
             if ((long) mid * mid <= x) {
                 reslut = mid;
                 left = mid + 1;
@@ -4852,6 +4852,13 @@ public class LeetCodeNote {
 
     /**
      * 718. 最长重复子数组，且子数组在原数组中连续
+     * 输入：nums1 = [1,2,3,2,1], nums2 = [3,2,1,4,7]
+     * 输出：3
+     * 解释：长度最长的公共子数组是 [3,2,1] 。
+     * 示例 2：
+     *
+     * 输入：nums1 = [0,0,0,0,0], nums2 = [0,0,0,0,0]
+     * 输出：5
      */
     public int findLength(int[] nums1, int[] nums2) {
         int ans = -1;
@@ -5473,9 +5480,13 @@ public class LeetCodeNote {
         int[] result = new int[temperatures.length];
 
         for (int i = 0; i < temperatures.length; i++) {
-            while (!stack.isEmpty() && temperatures[i] > temperatures[stack.peek()]) {
-                int prevIndex = stack.pop();
-                result[prevIndex] = i - prevIndex;
+            while (!stack.isEmpty()) {
+                if(temperatures[i] > temperatures[stack.peek()]){
+                    int prevIndex = stack.pop();
+                    result[prevIndex] = i - prevIndex;
+                }else {
+                    break;
+                }
             }
             stack.push(i);
         }
@@ -5585,12 +5596,15 @@ public class LeetCodeNote {
         root.right = root.left;
         //记得要将左边置空
         root.left = null;
+
+        // 把最后一个节点的 right 给到 temp
+        TreeNode tempRoot = root;
         //找到树的最右边的节点
-        while (root.right != null) {
-            root = root.right;
+        while (tempRoot.right != null) {
+            tempRoot = tempRoot.right;
         }
         //把右边的链表接到刚才树的最右边的节点
-        root.right = temp;
+        tempRoot.right = temp;
     }
 
 
@@ -5986,14 +6000,17 @@ public class LeetCodeNote {
         list.add(root);
         while (!list.isEmpty()) {
             TreeNode temp = list.removeFirst();
-            if (temp != null && haveNull) {
-                return false;
-            } else if (temp == null) {
+            if(temp!=null){
+                if(haveNull){
+                    return false;
+                }
+                list.add(temp.left);
+                list.add(temp.right);
+            }else{
                 haveNull = true;
-                continue;
             }
-            list.add(temp.left);
-            list.add(temp.right);
+
+
         }
         return true;
     }
