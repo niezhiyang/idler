@@ -24,10 +24,62 @@ import java.util.Stack;
  * since 12/3/21
  */
 public class LeetCodeNote {
+
+    // 🤍💗💗💗💗快速排序💗💗💗💗 必须会
+    public void quickSort1(int[] arr, int startIndex, int endIndex) {
+        if (startIndex >= endIndex) {
+            return;
+        }
+
+        // 核心算法部分：分别介绍 双边指针（交换法），如果startIndex和endIndex相遇，就把pivot放到这个相遇的地方
+        int pivotIndex = doublePointerSwap3(arr, startIndex, endIndex);
+
+        // 用分界值下标区分出左右区间,进行递归调用
+        quickSort1(arr, startIndex, pivotIndex - 1);
+        quickSort1(arr, pivotIndex + 1, endIndex);
+
+    }
+
+    /**
+     * 双边指针（交换法）
+     * 思路：
+     * 记录分界值 pivot,创建左右指针（记录下标）。
+     * （分界值选择方式有：首元素,随机选取,三数取中法）
+     * <p>
+     * 首先从右向左找出比pivot小的数据,
+     * 然后从左向右找出比pivot大的数据,
+     * 左右指针数据交换,进入下次循环。
+     * <p>
+     * 结束循环后将当前指针数据与分界值互换,
+     * 返回当前指针下标（即分界值下标）
+     */
+    private int doublePointerSwap3(int[] array, int start, int end) {
+        //取左边界元素为基准值，该位置“挖坑”，因为找的基准是第一个，所有从右边开始
+        int key = array[start];
+        while (start < end) {
+            //从右往左扫描，寻找比key小的记录
+            while (start < end && array[end] >= key) {
+                end--;
+            }
+            // 这里就是找到了end，让后放到start的为止，🤍下面就该移动start了🤍
+            array[start] = array[end];
+            //从左往右扫描，寻找比key大的记录
+            while (start < end && array[start] <= key) {
+                start++;
+            }
+            array[end] = array[start];
+        }
+        //start与end相等时的位置，即到达基准值位置
+        array[start] = key;
+        //返回基准值的下标
+        return start;
+
+    }
+
+
     private int number = 1;
     private final int MAX_NUMBER = 100;
     private Object lock = new Object();
-    // 🤍💗💗💗💗快速排序💗💗💗💗 必须会
 
     /**
      * ✨👍🌟✨👍🌟✨👍🌟这个必须自己写出来✨👍🌟✨👍🌟✨👍🌟
@@ -277,6 +329,17 @@ public class LeetCodeNote {
      * https://leetcode.cn/problems/remove-duplicates-from-sorted-list/
      */
 
+    public ListNode deleteDuplicates11(ListNode head) {
+        ListNode temp = head;
+        while (temp != null) {
+            while (temp.next != null && temp.val == temp.next.val) {
+                temp.next = temp.next.next;
+            }
+            temp = temp.next;
+        }
+        return head;
+    }
+
     public ListNode deleteDuplicates(ListNode head) {
         if (head == null) {
             return head;
@@ -290,20 +353,6 @@ public class LeetCodeNote {
             }
         }
 
-        return head;
-    }
-
-    public ListNode deleteDuplicates11(ListNode head) {
-        if (head == null) {
-            return null;
-        }
-        ListNode temp = head;
-        while (temp != null && temp.next != null) {
-            while (temp.next != null && temp.val == temp.next.val) {
-                temp.next = temp.next.next;
-            }
-            temp = temp.next;
-        }
         return head;
     }
 
@@ -509,6 +558,29 @@ public class LeetCodeNote {
         return prehead.next;
     }
 
+    public ListNode mergeTwoLists2(ListNode node1, ListNode node2) {
+        ListNode dumyNode = new ListNode(-1);
+        ListNode temp = dumyNode;
+        while (node1 != null || node2 != null) {
+            if (node1 == null) {
+                temp.next = node2;
+                node2 = node2.next;
+            } else if (node2 == null) {
+                temp.next = node1;
+                node1 = node1.next;
+            } else {
+                if (node1.val > node2.val) {
+                    temp.next = node2;
+                    node2 = node2.next;
+                } else {
+                    temp.next = node1;
+                    node1 = node1.next;
+                }
+            }
+            temp = temp.next;
+        }
+        return dumyNode.next;
+    }
 
     ///------------------------ 9 ---------------------
 
@@ -574,6 +646,7 @@ public class LeetCodeNote {
                 return head;
             }
         }
+        System.out.println(" end " + end.val);
         //保存好下次翻转的链表的头 next = 4-5-6-7
         ListNode nextListNode = end.next;
 
@@ -1092,10 +1165,10 @@ public class LeetCodeNote {
         if (node == null) {
             return true;
         }
-        if (node.val <= lower || node.val >= upper) {
-            return false;
-        }
-        return isValidBST(node.left, lower, node.val) && isValidBST(node.right, node.val, upper);
+//        if (node.val <= lower || node.val >= upper) {
+//            return false;
+//        }
+        return (node.val > lower && node.val<upper) && isValidBST(node.left, lower, node.val) && isValidBST(node.right, node.val, upper);
     }
 
     /**
@@ -1929,29 +2002,30 @@ public class LeetCodeNote {
     }
 
     class MyStack {
-        Queue<Integer> queue1;
-        Queue<Integer> queue2;
+        Queue<Integer> queueIn;
+        Queue<Integer> queueOut;
 
         /**
          * Initialize your data structure here.
          */
         public MyStack() {
-            queue1 = new LinkedList<Integer>();
-            queue2 = new LinkedList<Integer>();
+            queueIn = new LinkedList<Integer>();
+            queueOut = new LinkedList<Integer>();
 
         }
 
+        //  1->2->3
         /**
          * Push element x onto stack.
          */
         public void push(int x) {
-            queue2.add(x);
-            while (!queue1.isEmpty()) {
-                queue2.add(queue1.poll());
+            queueOut.add(x);
+            while (!queueIn.isEmpty()) {
+                queueOut.add(queueIn.poll());
             }
-            Queue<Integer> temp = queue1;
-            queue1 = queue2;
-            queue2 = temp;
+            Queue<Integer> temp = queueIn;
+            queueIn = queueOut;
+            queueOut = temp;
 
         }
 
@@ -1959,72 +2033,63 @@ public class LeetCodeNote {
          * Removes the element on top of the stack and returns that element.
          */
         public int pop() {
-            return queue1.poll();
+            return queueIn.poll();
         }
 
         /**
          * Get the top element.
          */
         public int top() {
-            return queue1.peek();
+            return queueIn.peek();
         }
 
         /**
          * Returns whether the stack is empty.
          */
         public boolean empty() {
-            return queue1.isEmpty();
+            return queueIn.isEmpty();
         }
     }
 
     class MyQueue {
 
-        private Stack<Integer> mStack1;
-        private Stack<Integer> mStack2;
+        private Stack<Integer> inStack;
+        private Stack<Integer> outStack;
 
         public MyQueue() {
-            mStack1 = new Stack<>();
-            mStack2 = new Stack<>();
+            inStack = new Stack<>();
+            outStack = new Stack<>();
         }
 
         public void push(int x) {
-            mStack1.push(x);
+            inStack.push(x);
 
         }
 
         public int pop() {
-            while (mStack2.empty()) {
-                while (!mStack1.empty()) {
-                    mStack2.push(mStack1.peek());
-                    mStack1.pop();
-                }
+            if (outStack.isEmpty()) {
+                in2out();
             }
-            int val = mStack2.peek();
-            mStack2.pop();
-            //获取出队元素后,再将s2里面的元素放入s1里面。
-            while (!mStack2.empty()) {
-                mStack1.push(mStack2.pop());
-            }
-            return val;
+            return outStack.pop();
         }
 
         public int peek() {
-            while (mStack2.empty()) {
-                while (!mStack1.empty()) {
-                    mStack2.push(mStack1.peek());
-                    mStack1.pop();
-                }
+            // 当 out 为空
+            if (outStack.isEmpty()) {
+                in2out();
             }
-            int val = mStack2.peek();
-            //获取出队元素后,再将s2里面的元素放入s1里面。
-            while (!mStack2.empty()) {
-                mStack1.push(mStack2.pop());
+            return outStack.peek();
+        }
+        private void in2out() {
+            while (!inStack.isEmpty()) {
+                // 便利空了，都放进入 out 了
+                outStack.push(inStack.pop());
             }
-            return val;
         }
 
+
         public boolean empty() {
-            return mStack1.isEmpty();
+            return inStack.isEmpty() && outStack.isEmpty();
         }
     }
 
@@ -2458,7 +2523,7 @@ public class LeetCodeNote {
 //                    reslut = s.substring(left, right + 1);
 //                    System.out.println(reslut);
 //                }
-                maxLength = Math.max(right - left + 1,maxLength);
+                maxLength = Math.max(right - left + 1, maxLength);
                 right++;
 
             } else {
@@ -2746,6 +2811,24 @@ public class LeetCodeNote {
         }
     }
 
+    public List<List<Integer>> combinationSum1(int[] candidates, int target) {
+        List<List<Integer>> result = new ArrayList<>();
+        dfsCombin(candidates, target, result, new ArrayList<Integer>(), 0);
+        return result;
+    }
+
+    private void dfsCombin(int[] candidates, int target, List<List<Integer>> result, ArrayList<Integer> integers, int index) {
+        if (target == 0) {
+            result.add(new ArrayList<>(integers));
+        } else if (target > 0) {
+            for (int i = index; i < candidates.length; i++) {
+                integers.add(candidates[i]);
+                dfsCombin(candidates, target - candidates[i], result, integers, i);
+                integers.remove(integers.size() - 1);
+            }
+        }
+    }
+
     ///------------------------ 87 ---------------------
 
 
@@ -2895,6 +2978,32 @@ public class LeetCodeNote {
         return result.toString();
     }
 
+    public String compressString1(String S) {
+        if (S.isEmpty() || S.length() == 1) {
+            return S;
+        }
+        StringBuilder result = new StringBuilder();
+        char cur = S.charAt(0);
+        int count = 1;
+        // 从 1 开始比较简单
+        int index = 1;
+        while (index < S.length()) {
+            if (S.charAt(index) == cur) {
+                count++;
+            } else {
+                result.append(cur).append(count);
+                cur = S.charAt(index);
+                count = 1;
+
+            }
+            index++;
+        }
+        result.append(cur).append(count);
+        if (result.length() >= S.length()) {
+            return S;
+        }
+        return result.toString();
+    }
 
     ///------------------------ 46 ---------------------
 
@@ -3121,7 +3230,8 @@ public class LeetCodeNote {
     ///------------------------ 50 ---------------------
 
     /**
-     * 最长递增子序列
+     * 300 最长递增子序列
+     * https://leetcode.cn/problems/longest-increasing-subsequence/
      * 给你一个整数数组 nums ，找到其中最长严格递增子序列的长度。
      * 不是连续的哦
      * 输入：nums = [10,9,2,5,3,7,101,18]
@@ -3197,7 +3307,7 @@ public class LeetCodeNote {
                 if (!path.contains(nums[i])) {
                     path.add(nums[i]);
                     dps(path, result, nums);
-                    path.remove(path.size()-1);
+                    path.remove(path.size() - 1);
                 }
 //                // 下面直接不用回溯了
 //                if (!path.contains(nums[i])) {
@@ -4773,7 +4883,7 @@ public class LeetCodeNote {
     public int mySqrt(int x) {
         int left = 0, right = x, reslut = -1;
         while (left <= right) {
-            int mid = (left + right)/ 2;
+            int mid = (left + right) / 2;
             if ((long) mid * mid <= x) {
                 reslut = mid;
                 left = mid + 1;
@@ -4856,7 +4966,7 @@ public class LeetCodeNote {
      * 输出：3
      * 解释：长度最长的公共子数组是 [3,2,1] 。
      * 示例 2：
-     *
+     * <p>
      * 输入：nums1 = [0,0,0,0,0], nums2 = [0,0,0,0,0]
      * 输出：5
      */
@@ -5481,10 +5591,10 @@ public class LeetCodeNote {
 
         for (int i = 0; i < temperatures.length; i++) {
             while (!stack.isEmpty()) {
-                if(temperatures[i] > temperatures[stack.peek()]){
+                if (temperatures[i] > temperatures[stack.peek()]) {
                     int prevIndex = stack.pop();
                     result[prevIndex] = i - prevIndex;
-                }else {
+                } else {
                     break;
                 }
             }
@@ -5671,6 +5781,7 @@ public class LeetCodeNote {
     public void subsetsTest() {
         subsets(new int[]{1, 2, 3});
     }
+
     public void preOrder1(List<List<Integer>> res, List<Integer> state, int[] nums, int n) {
         if (n == nums.length) {
             res.add(new ArrayList<>(state));
@@ -5688,6 +5799,7 @@ public class LeetCodeNote {
 
         }
     }
+
     public List<List<Integer>> subsets(int[] nums) {
         List<List<Integer>> res = new ArrayList<>();
         List<Integer> state = new ArrayList<>();
@@ -5695,7 +5807,6 @@ public class LeetCodeNote {
         return res;
 
     }
-
 
 
     public void preOrder(List<List<Integer>> res, List<Integer> state, int[] nums, int n) {
@@ -5905,47 +6016,7 @@ public class LeetCodeNote {
         return -1;
     }
 
-    /**
-     * 搜索旋转排序数组
-     * 输入：nums = [4,5,6,7,0,1,2], target = 0
-     * 输出：4
-     * https://leetcode.cn/problems/search-in-rotated-sorted-array/
-     * 时间复杂度 O(logn)，显然应该使用二分查找
-     *
-     * @param nums
-     * @param target
-     * @return
-     */
-    public int search4(int[] nums, int target) {
-        int left = 0;
-        int right = nums.length - 1;
-        while (right >= left) {
-            int mid = left + (right - left) / 2;
-            if (nums[mid] == target) {
-                System.out.println("找到: " + mid);
-                return mid;
-            }
-            if (nums[mid] >= nums[left]) {
-                // left -> mid 是递增了
-                if (target >= nums[left] && target < nums[mid]) {
-                    // 在这个递增之间
-                    right = mid - 1;
-                } else {
-                    // 不在这个区间
-                    left = mid + 1;
-                }
-            } else {
-                //  mid -> right 是递增了
-                if (target > nums[mid] && target <= nums[right]) {
-                    left = mid + 1;
-                } else {
-                    right = mid - 1;
-                }
-            }
 
-        }
-        return -1;
-    }
 
     /*
             7
@@ -5969,7 +6040,7 @@ public class LeetCodeNote {
         int n = nums.length;
         int left = 0, right = n - 1;
         while (left < right) {
-            int mid = left + (right - left) / 2;
+            int mid = (left + right) / 2;
             // 如果mid
             if (nums[mid] < nums[right]) {
                 // 证明  mid -》 right 递增
@@ -6000,13 +6071,13 @@ public class LeetCodeNote {
         list.add(root);
         while (!list.isEmpty()) {
             TreeNode temp = list.removeFirst();
-            if(temp!=null){
-                if(haveNull){
+            if (temp != null) {
+                if (haveNull) {
                     return false;
                 }
                 list.add(temp.left);
                 list.add(temp.right);
-            }else{
+            } else {
                 haveNull = true;
             }
 
